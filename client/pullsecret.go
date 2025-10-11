@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/deploys-app/api"
+	"github.com/Nortezh/api"
 )
 
 type pullSecretClient struct {

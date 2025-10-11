@@ -1,4 +1,4 @@
-module github.com/deploys-app/api
+module github.com/Nortezh/api
 
 go 1.23
 

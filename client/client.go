@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/deploys-app/api"
+	"github.com/Nortezh/api"
 )
 
 const endpoint = "https://api.deploys.app/"
