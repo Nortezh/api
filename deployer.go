@@ -53,10 +53,11 @@ type DeployerCommandWorkloadIdentityCreate struct {
 }
 
 type DeployerCommandDiskCreate struct {
-	ID        int64  `json:"id"`
-	ProjectID int64  `json:"projectId"`
-	Name      string `json:"name"`
-	Size      int64  `json:"size"`
+	ID           int64  `json:"id"`
+	ProjectID    int64  `json:"projectId"`
+	Name         string `json:"name"`
+	Size         int64  `json:"size"` // bytes
+	StorageClass string `json:"storageClass"`
 }
 
 type DeployerCommandDeploymentMetadata struct {
@@ -83,29 +84,35 @@ type DeployerCommandDeploymentDeployBillingConfig struct {
 	ForceSpot bool   `json:"forceSpot"`
 }
 
+type DiskMountData struct {
+	SubPath  string
+	DiskName string
+}
+
 type DeployerCommandDeploymentDeploySpec struct {
-	Image                string                `json:"image"`
-	Env                  map[string]string     `json:"env"`
-	Command              []string              `json:"command"`
-	Args                 []string              `json:"args"`
-	WorkloadIdentityName string                `json:"workloadIdentityName"`
-	MinReplicas          int                   `json:"minReplicas"`
-	MaxReplicas          int                   `json:"maxReplicas"`
-	Port                 int                   `json:"port"`
-	Protocol             DeploymentProtocol    `json:"protocol"`
-	Internal             bool                  `json:"internal"`
-	Schedule             string                `json:"schedule"`
-	Annotations          map[string]string     `json:"annotations"`
-	CPU                  string                `json:"cpu"`
-	CPULimit             string                `json:"cpuLimit"`
-	Memory               string                `json:"memory"`
-	PullSecretName       string                `json:"pullSecretName"`
-	DiskName             string                `json:"diskName"`
-	DiskMountPath        string                `json:"diskMountPath"`
-	DiskSubPath          string                `json:"diskSubPath"`
-	MountData            map[string]string     `json:"mountData"` // file path => data
-	Sidecars             []*Sidecar            `json:"sidecars"`
-	HealthCheck          DeploymentHealthCheck `json:"healthCheck"`
+	Image                string                   `json:"image"`
+	Env                  map[string]string        `json:"env"`
+	Command              []string                 `json:"command"`
+	Args                 []string                 `json:"args"`
+	WorkloadIdentityName string                   `json:"workloadIdentityName"`
+	MinReplicas          int                      `json:"minReplicas"`
+	MaxReplicas          int                      `json:"maxReplicas"`
+	Port                 int                      `json:"port"`
+	Protocol             DeploymentProtocol       `json:"protocol"`
+	Internal             bool                     `json:"internal"`
+	Schedule             string                   `json:"schedule"`
+	Annotations          map[string]string        `json:"annotations"`
+	CPU                  string                   `json:"cpu"`
+	CPULimit             string                   `json:"cpuLimit"`
+	Memory               string                   `json:"memory"`
+	PullSecretName       string                   `json:"pullSecretName"`
+	DiskName             string                   `json:"diskName"`
+	DiskMountPath        string                   `json:"diskMountPath"`
+	DiskSubPath          string                   `json:"diskSubPath"`
+	MountData            map[string]string        `json:"mountData"`     // file path => data
+	DiskMountData        map[string]DiskMountData `json:"diskMountData"` // file path => data
+	Sidecars             []*Sidecar               `json:"sidecars"`
+	HealthCheck          DeploymentHealthCheck    `json:"healthCheck"`
 }
 
 type DeploymentHealthCheck struct {
