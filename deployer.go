@@ -110,7 +110,7 @@ type DeployerCommandDeploymentDeploySpec struct {
 	DiskMountPath        string                   `json:"diskMountPath"`
 	DiskSubPath          string                   `json:"diskSubPath"`
 	MountData            map[string]string        `json:"mountData"`     // file path => data
-	DiskMountData        map[string]DiskMountData `json:"diskMountData"` // file path => data
+	ExtraDiskMountData   map[string]DiskMountData `json:"diskMountData"` // file path => config
 	Sidecars             []*Sidecar               `json:"sidecars"`
 	HealthCheck          DeploymentHealthCheck    `json:"healthCheck"`
 }
