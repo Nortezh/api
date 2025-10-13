@@ -56,7 +56,7 @@ type DeployerCommandDiskCreate struct {
 	ID           int64  `json:"id"`
 	ProjectID    int64  `json:"projectId"`
 	Name         string `json:"name"`
-	Size         int64  `json:"size"` // bytes
+	Size         int64  `json:"size"` // GiB
 	StorageClass string `json:"storageClass"`
 }
 
@@ -85,8 +85,8 @@ type DeployerCommandDeploymentDeployBillingConfig struct {
 }
 
 type DiskMountData struct {
-	SubPath  string `json:"sub_path"`
-	DiskName string `json:"disk_name"`
+	DiskName string `json:"diskName"`
+	SubPath  string `json:"subPath"`
 }
 
 type DeployerCommandDeploymentDeploySpec struct {
