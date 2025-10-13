@@ -85,8 +85,8 @@ type DeployerCommandDeploymentDeployBillingConfig struct {
 }
 
 type DiskMountData struct {
-	SubPath  string
-	DiskName string
+	SubPath  string `json:"sub_path"`
+	DiskName string `json:"disk_name"`
 }
 
 type DeployerCommandDeploymentDeploySpec struct {
