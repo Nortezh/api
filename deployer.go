@@ -23,6 +23,7 @@ type DeployerCommandItem struct {
 	WorkloadIdentityCreate *DeployerCommandWorkloadIdentityCreate `json:"workloadIdentityCreate,omitempty"`
 	WorkloadIdentityDelete *DeployerCommandMetadata               `json:"workloadIdentityDelete,omitempty"`
 	DiskCreate             *DeployerCommandDiskCreate             `json:"diskCreate,omitempty"`
+	DiskUpdate             *DeployerCommandDiskUpdate             `json:"diskUpdate,omitempty"`
 	DiskDelete             *DeployerCommandMetadata               `json:"diskDelete,omitempty"`
 	DeploymentDeploy       *DeployerCommandDeploymentDeploy       `json:"deploymentDeploy,omitempty"`
 	DeploymentDelete       *DeployerCommandDeploymentMetadata     `json:"deploymentDelete,omitempty"`
@@ -56,8 +57,14 @@ type DeployerCommandDiskCreate struct {
 	ID           int64  `json:"id"`
 	ProjectID    int64  `json:"projectId"`
 	Name         string `json:"name"`
-	Size         int64  `json:"size"` // GiB
+	Size         int64  `json:"size"` // mb
 	StorageClass string `json:"storageClass"`
+}
+
+type DeployerCommandDiskUpdate struct {
+	ID        int64 `json:"id"`
+	ProjectID int64 `json:"projectId"`
+	Size      int64 `json:"size"` // mb
 }
 
 type DeployerCommandDeploymentMetadata struct {
