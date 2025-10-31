@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 	"strings"
 	"time"
@@ -117,6 +118,7 @@ func (t *DeploymentType) parseString(s string) error {
 	}
 	*t = ParseDeploymentTypeString(s)
 	if t.IsZero() {
+		slog.Error("invalid deployment type parseString", slog.String("value", s))
 		return fmt.Errorf("invalid deployment type")
 	}
 	return nil
