@@ -55,6 +55,7 @@ func (m *RouteCreate) Valid() error {
 type RouteConfig struct {
 	BasicAuth   *RouteConfigBasicAuth   `json:"basicAuth" yaml:"basicAuth"`
 	ForwardAuth *RouteConfigForwardAuth `json:"forwardAuth" yaml:"forwardAuth"`
+	RewritePath string                  `json:"rewritePath" yaml:"rewritePath"`
 }
 
 type RouteConfigBasicAuth struct {
