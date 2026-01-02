@@ -39,6 +39,7 @@ type LocationItem struct {
 	ID                string           `json:"id" yaml:"id"`
 	DomainSuffix      string           `json:"domainSuffix" yaml:"domainSuffix"`
 	Endpoint          string           `json:"endpoint" yaml:"endpoint"`
+	Namespace         string           `json:"namespace" yaml:"namespace"`
 	CName             string           `json:"cname" yaml:"cname"`
 	FreeTier          bool             `json:"freeTier" yaml:"freeTier"`
 	CPUAllocatable    []string         `json:"cpuAllocatable" yaml:"cpuAllocatable"`
