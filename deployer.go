@@ -189,8 +189,9 @@ type DeployerSetResultItemGeneral struct {
 }
 
 type DeployerSetResultItemGeneralWithGeneration struct {
-	ID         int64 `json:"id"`
-	Generation int64 `json:"generation"`
+	ID         int64  `json:"id"`
+	Location   string `json:"location"`
+	Generation int64  `json:"generation"`
 }
 
 type DeployerSetResultItemDeploy struct {
