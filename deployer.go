@@ -155,35 +155,42 @@ type DeployerCommandNetworkPolicyProjectIsolationUpsert struct {
 	ID                      int64   `json:"id"`
 	ProjectID               int64   `json:"projectId"`
 	AllowIncomingProjectIDs []int64 `json:"allowIncomingProjectIds"`
+	Generation              int64   `json:"generation"`
 }
 
 type DeployerCommandNetworkPolicyProjectIsolationDelete struct {
-	ID        int64 `json:"id"`
-	ProjectID int64 `json:"projectId"`
+	ID         int64 `json:"id"`
+	ProjectID  int64 `json:"projectId"`
+	Generation int64 `json:"generation"`
 }
 
 type DeployerSetResult []*DeployerSetResultItem
 
 type DeployerSetResultItem struct {
-	PullSecretCreate                    *DeployerSetResultItemGeneral    `json:"pullSecretCreate,omitempty"`
-	PullSecretDelete                    *DeployerSetResultItemGeneral    `json:"pullSecretDelete,omitempty"`
-	WorkloadIdentityCreate              *DeployerSetResultItemGeneral    `json:"workloadIdentityCreate,omitempty"`
-	WorkloadIdentityDelete              *DeployerSetResultItemGeneral    `json:"workloadIdentityDelete,omitempty"`
-	DiskCreate                          *DeployerSetResultItemGeneral    `json:"diskCreate,omitempty"`
-	DiskUpdate                          *DeployerSetResultItemGeneral    `json:"diskUpdate,omitempty"`
-	DiskDelete                          *DeployerSetResultItemGeneral    `json:"diskDelete,omitempty"`
-	DeploymentDeploy                    *DeployerSetResultItemDeploy     `json:"deploymentDeploy,omitempty"`
-	DeploymentDelete                    *DeployerSetResultItemGeneral    `json:"deploymentDelete,omitempty"`
-	DeploymentPause                     *DeployerSetResultItemDeployment `json:"deploymentPause,omitempty"`
-	DeploymentCleanup                   *DeployerSetResultItemDeployment `json:"deploymentCleanup,omitempty"`
-	RouteCreate                         *DeployerSetResultItemGeneral    `json:"routeCreate,omitempty"`
-	RouteDelete                         *DeployerSetResultItemGeneral    `json:"routeDelete,omitempty"`
-	NetworkPolicyProjectIsolationUpsert *DeployerSetResultItemGeneral    `json:"networkPolicyProjectIsolationUpsert,omitempty"`
-	NetworkPolicyProjectIsolationDelete *DeployerSetResultItemGeneral    `json:"networkPolicyProjectIsolationDelete,omitempty"`
+	PullSecretCreate                    *DeployerSetResultItemGeneral               `json:"pullSecretCreate,omitempty"`
+	PullSecretDelete                    *DeployerSetResultItemGeneral               `json:"pullSecretDelete,omitempty"`
+	WorkloadIdentityCreate              *DeployerSetResultItemGeneral               `json:"workloadIdentityCreate,omitempty"`
+	WorkloadIdentityDelete              *DeployerSetResultItemGeneral               `json:"workloadIdentityDelete,omitempty"`
+	DiskCreate                          *DeployerSetResultItemGeneral               `json:"diskCreate,omitempty"`
+	DiskUpdate                          *DeployerSetResultItemGeneral               `json:"diskUpdate,omitempty"`
+	DiskDelete                          *DeployerSetResultItemGeneral               `json:"diskDelete,omitempty"`
+	DeploymentDeploy                    *DeployerSetResultItemDeploy                `json:"deploymentDeploy,omitempty"`
+	DeploymentDelete                    *DeployerSetResultItemGeneral               `json:"deploymentDelete,omitempty"`
+	DeploymentPause                     *DeployerSetResultItemDeployment            `json:"deploymentPause,omitempty"`
+	DeploymentCleanup                   *DeployerSetResultItemDeployment            `json:"deploymentCleanup,omitempty"`
+	RouteCreate                         *DeployerSetResultItemGeneral               `json:"routeCreate,omitempty"`
+	RouteDelete                         *DeployerSetResultItemGeneral               `json:"routeDelete,omitempty"`
+	NetworkPolicyProjectIsolationUpsert *DeployerSetResultItemGeneralWithGeneration `json:"networkPolicyProjectIsolationUpsert,omitempty"`
+	NetworkPolicyProjectIsolationDelete *DeployerSetResultItemGeneralWithGeneration `json:"networkPolicyProjectIsolationDelete,omitempty"`
 }
 
 type DeployerSetResultItemGeneral struct {
 	ID int64 `json:"id"`
+}
+
+type DeployerSetResultItemGeneralWithGeneration struct {
+	ID         int64 `json:"id"`
+	Generation int64 `json:"generation"`
 }
 
 type DeployerSetResultItemDeploy struct {
