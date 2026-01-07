@@ -18,19 +18,21 @@ type DeployerIsDomainActive struct {
 type GetCommandsResult []*DeployerCommandItem
 
 type DeployerCommandItem struct {
-	PullSecretCreate       *DeployerCommandPullSecretCreate       `json:"pullSecretCreate,omitempty"`
-	PullSecretDelete       *DeployerCommandMetadata               `json:"pullSecretDelete,omitempty"`
-	WorkloadIdentityCreate *DeployerCommandWorkloadIdentityCreate `json:"workloadIdentityCreate,omitempty"`
-	WorkloadIdentityDelete *DeployerCommandMetadata               `json:"workloadIdentityDelete,omitempty"`
-	DiskCreate             *DeployerCommandDiskCreate             `json:"diskCreate,omitempty"`
-	DiskUpdate             *DeployerCommandDiskUpdate             `json:"diskUpdate,omitempty"`
-	DiskDelete             *DeployerCommandMetadata               `json:"diskDelete,omitempty"`
-	DeploymentDeploy       *DeployerCommandDeploymentDeploy       `json:"deploymentDeploy,omitempty"`
-	DeploymentDelete       *DeployerCommandDeploymentMetadata     `json:"deploymentDelete,omitempty"`
-	DeploymentPause        *DeployerCommandDeploymentMetadata     `json:"deploymentPause,omitempty"`
-	DeploymentCleanup      *DeployerCommandDeploymentMetadata     `json:"deploymentCleanup,omitempty"`
-	RouteCreate            *DeployerCommandRouteCreate            `json:"routeCreate,omitempty"`
-	RouteDelete            *DeployerCommandRouteDelete            `json:"routeDelete,omitempty"`
+	PullSecretCreate                    *DeployerCommandPullSecretCreate                    `json:"pullSecretCreate,omitempty"`
+	PullSecretDelete                    *DeployerCommandMetadata                            `json:"pullSecretDelete,omitempty"`
+	WorkloadIdentityCreate              *DeployerCommandWorkloadIdentityCreate              `json:"workloadIdentityCreate,omitempty"`
+	WorkloadIdentityDelete              *DeployerCommandMetadata                            `json:"workloadIdentityDelete,omitempty"`
+	DiskCreate                          *DeployerCommandDiskCreate                          `json:"diskCreate,omitempty"`
+	DiskUpdate                          *DeployerCommandDiskUpdate                          `json:"diskUpdate,omitempty"`
+	DiskDelete                          *DeployerCommandMetadata                            `json:"diskDelete,omitempty"`
+	DeploymentDeploy                    *DeployerCommandDeploymentDeploy                    `json:"deploymentDeploy,omitempty"`
+	DeploymentDelete                    *DeployerCommandDeploymentMetadata                  `json:"deploymentDelete,omitempty"`
+	DeploymentPause                     *DeployerCommandDeploymentMetadata                  `json:"deploymentPause,omitempty"`
+	DeploymentCleanup                   *DeployerCommandDeploymentMetadata                  `json:"deploymentCleanup,omitempty"`
+	RouteCreate                         *DeployerCommandRouteCreate                         `json:"routeCreate,omitempty"`
+	RouteDelete                         *DeployerCommandRouteDelete                         `json:"routeDelete,omitempty"`
+	NetworkPolicyProjectIsolationUpsert *DeployerCommandNetworkPolicyProjectIsolationUpsert `json:"networkPolicyProjectIsolationUpsert,omitempty"`
+	NetworkPolicyProjectIsolationDelete *DeployerCommandNetworkPolicyProjectIsolationDelete `json:"networkPolicyProjectIsolationDelete,omitempty"`
 }
 
 type DeployerCommandMetadata struct {
@@ -149,22 +151,35 @@ type DeployerCommandRouteDelete struct {
 	Domain    string `json:"domain"`
 }
 
+type DeployerCommandNetworkPolicyProjectIsolationUpsert struct {
+	ID                      int64   `json:"id"`
+	ProjectID               int64   `json:"projectId"`
+	AllowIncomingProjectIDs []int64 `json:"allowIncomingProjectIds"`
+}
+
+type DeployerCommandNetworkPolicyProjectIsolationDelete struct {
+	ID        int64 `json:"id"`
+	ProjectID int64 `json:"projectId"`
+}
+
 type DeployerSetResult []*DeployerSetResultItem
 
 type DeployerSetResultItem struct {
-	PullSecretCreate       *DeployerSetResultItemGeneral    `json:"pullSecretCreate,omitempty"`
-	PullSecretDelete       *DeployerSetResultItemGeneral    `json:"pullSecretDelete,omitempty"`
-	WorkloadIdentityCreate *DeployerSetResultItemGeneral    `json:"workloadIdentityCreate,omitempty"`
-	WorkloadIdentityDelete *DeployerSetResultItemGeneral    `json:"workloadIdentityDelete,omitempty"`
-	DiskCreate             *DeployerSetResultItemGeneral    `json:"diskCreate,omitempty"`
-	DiskUpdate             *DeployerSetResultItemGeneral    `json:"diskUpdate,omitempty"`
-	DiskDelete             *DeployerSetResultItemGeneral    `json:"diskDelete,omitempty"`
-	DeploymentDeploy       *DeployerSetResultItemDeploy     `json:"deploymentDeploy,omitempty"`
-	DeploymentDelete       *DeployerSetResultItemGeneral    `json:"deploymentDelete,omitempty"`
-	DeploymentPause        *DeployerSetResultItemDeployment `json:"deploymentPause,omitempty"`
-	DeploymentCleanup      *DeployerSetResultItemDeployment `json:"deploymentCleanup,omitempty"`
-	RouteCreate            *DeployerSetResultItemGeneral    `json:"routeCreate,omitempty"`
-	RouteDelete            *DeployerSetResultItemGeneral    `json:"routeDelete,omitempty"`
+	PullSecretCreate                    *DeployerSetResultItemGeneral    `json:"pullSecretCreate,omitempty"`
+	PullSecretDelete                    *DeployerSetResultItemGeneral    `json:"pullSecretDelete,omitempty"`
+	WorkloadIdentityCreate              *DeployerSetResultItemGeneral    `json:"workloadIdentityCreate,omitempty"`
+	WorkloadIdentityDelete              *DeployerSetResultItemGeneral    `json:"workloadIdentityDelete,omitempty"`
+	DiskCreate                          *DeployerSetResultItemGeneral    `json:"diskCreate,omitempty"`
+	DiskUpdate                          *DeployerSetResultItemGeneral    `json:"diskUpdate,omitempty"`
+	DiskDelete                          *DeployerSetResultItemGeneral    `json:"diskDelete,omitempty"`
+	DeploymentDeploy                    *DeployerSetResultItemDeploy     `json:"deploymentDeploy,omitempty"`
+	DeploymentDelete                    *DeployerSetResultItemGeneral    `json:"deploymentDelete,omitempty"`
+	DeploymentPause                     *DeployerSetResultItemDeployment `json:"deploymentPause,omitempty"`
+	DeploymentCleanup                   *DeployerSetResultItemDeployment `json:"deploymentCleanup,omitempty"`
+	RouteCreate                         *DeployerSetResultItemGeneral    `json:"routeCreate,omitempty"`
+	RouteDelete                         *DeployerSetResultItemGeneral    `json:"routeDelete,omitempty"`
+	NetworkPolicyProjectIsolationUpsert *DeployerSetResultItemGeneral    `json:"networkPolicyProjectIsolationUpsert,omitempty"`
+	NetworkPolicyProjectIsolationDelete *DeployerSetResultItemGeneral    `json:"networkPolicyProjectIsolationDelete,omitempty"`
 }
 
 type DeployerSetResultItemGeneral struct {
