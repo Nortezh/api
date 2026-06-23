@@ -31,8 +31,40 @@ type DeployerCommandItem struct {
 	DeploymentCleanup                   *DeployerCommandDeploymentMetadata                  `json:"deploymentCleanup,omitempty"`
 	RouteCreate                         *DeployerCommandRouteCreate                         `json:"routeCreate,omitempty"`
 	RouteDelete                         *DeployerCommandRouteDelete                         `json:"routeDelete,omitempty"`
+	DatabaseCreate                      *DeployerCommandDatabaseCreate                      `json:"databaseCreate,omitempty"`
+	DatabaseDelete                      *DeployerCommandDatabaseMetadata                    `json:"databaseDelete,omitempty"`
 	NetworkPolicyProjectIsolationUpsert *DeployerCommandNetworkPolicyProjectIsolationUpsert `json:"networkPolicyProjectIsolationUpsert,omitempty"`
 	NetworkPolicyProjectIsolationDelete *DeployerCommandNetworkPolicyProjectIsolationDelete `json:"networkPolicyProjectIsolationDelete,omitempty"`
+}
+
+// DatabaseType is the managed-database engine, marshaled as its string name on the wire — matching
+// nortezh-backend's database.Type ("postgres"/"redis"/"mongo").
+type DatabaseType string
+
+const (
+	DatabaseTypePostgres DatabaseType = "postgres"
+	DatabaseTypeRedis    DatabaseType = "redis"
+	DatabaseTypeMongo    DatabaseType = "mongo"
+)
+
+type DeployerCommandDatabaseCreate struct {
+	ID           int64        `json:"id"`
+	ProjectID    int64        `json:"projectId"`
+	Name         string       `json:"name"`
+	Type         DatabaseType `json:"type"`
+	Image        string       `json:"image"`        // "" → operator default
+	User         string       `json:"user"`         // "" for redis
+	Password     string       `json:"password"`
+	Database     string       `json:"database"`     // postgres only, else ""
+	StorageSize  int64        `json:"storageSize"`  // mb
+	StorageClass string       `json:"storageClass"` // optional override; backend leaves "" → deployer defaults
+}
+
+type DeployerCommandDatabaseMetadata struct {
+	ID        int64        `json:"id"`
+	ProjectID int64        `json:"projectId"`
+	Name      string       `json:"name"`
+	Type      DatabaseType `json:"type"` // needed to pick the kdb kind to delete
 }
 
 type DeployerCommandMetadata struct {
@@ -180,12 +212,22 @@ type DeployerSetResultItem struct {
 	DeploymentCleanup                   *DeployerSetResultItemDeployment            `json:"deploymentCleanup,omitempty"`
 	RouteCreate                         *DeployerSetResultItemGeneral               `json:"routeCreate,omitempty"`
 	RouteDelete                         *DeployerSetResultItemGeneral               `json:"routeDelete,omitempty"`
+	DatabaseCreate                      *DeployerSetResultItemDatabaseCreate        `json:"databaseCreate,omitempty"`
+	DatabaseDelete                      *DeployerSetResultItemGeneral               `json:"databaseDelete,omitempty"`
 	NetworkPolicyProjectIsolationUpsert *DeployerSetResultItemGeneralWithGeneration `json:"networkPolicyProjectIsolationUpsert,omitempty"`
 	NetworkPolicyProjectIsolationDelete *DeployerSetResultItemGeneralWithGeneration `json:"networkPolicyProjectIsolationDelete,omitempty"`
 }
 
 type DeployerSetResultItemGeneral struct {
 	ID int64 `json:"id"`
+}
+
+// DeployerSetResultItemDatabaseCreate carries the kdb-assigned endpoint back to the backend.
+type DeployerSetResultItemDatabaseCreate struct {
+	ID      int64  `json:"id"`
+	Success bool   `json:"success"`
+	Host    string `json:"host"` // kdb status.host
+	Port    int    `json:"port"` // kdb status.port
 }
 
 type DeployerSetResultItemGeneralWithGeneration struct {
