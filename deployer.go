@@ -56,8 +56,8 @@ type DatabaseResourceValues struct {
 // DatabaseResources is the managed DB's container cpu/memory requests & limits. Matches
 // nortezh-backend's database.Resource and the kdb spec.resources block on the wire.
 type DatabaseResources struct {
-	Requests DatabaseResourceValues `json:"requests,omitempty"`
-	Limits   DatabaseResourceValues `json:"limits,omitempty"`
+	Requests DatabaseResourceValues `json:"requests"`
+	Limits   DatabaseResourceValues `json:"limits"`
 }
 
 type DatabaseConfigPostgres struct {
@@ -86,7 +86,7 @@ type DeployerCommandDatabaseCreate struct {
 	MongoConfig    *DatabaseConfigMongo    `json:"mongoConfig"`
 	StorageSize    int64                   `json:"storageSize"`  // mb
 	StorageClass   string                  `json:"storageClass"` // optional override; backend leaves "" → deployer defaults
-	Resources      DatabaseResources       `json:"resources,omitempty"`
+	Resources      DatabaseResources       `json:"resources"`
 }
 
 type DeployerCommandDatabaseMetadata struct {
