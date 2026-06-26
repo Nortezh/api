@@ -47,17 +47,46 @@ const (
 	DatabaseTypeMongo    DatabaseType = "mongo"
 )
 
+// DatabaseResourceValues are k8s quantity strings (e.g. "100m", "256Mi"); empty = unset.
+type DatabaseResourceValues struct {
+	CPU    string `json:"cpu,omitempty"`
+	Memory string `json:"memory,omitempty"`
+}
+
+// DatabaseResources is the managed DB's container cpu/memory requests & limits. Matches
+// nortezh-backend's database.Resource and the kdb spec.resources block on the wire.
+type DatabaseResources struct {
+	Requests DatabaseResourceValues `json:"requests,omitempty"`
+	Limits   DatabaseResourceValues `json:"limits,omitempty"`
+}
+
+type DatabaseConfigPostgres struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Database string `json:"database"`
+}
+
+type DatabaseConfigRedis struct {
+	Password string `json:"password"`
+}
+
+type DatabaseConfigMongo struct {
+	User     string `json:"user"`
+	Password string `json:"password"`
+}
+
 type DeployerCommandDatabaseCreate struct {
-	ID           int64        `json:"id"`
-	ProjectID    int64        `json:"projectId"`
-	Name         string       `json:"name"`
-	Type         DatabaseType `json:"type"`
-	Image        string       `json:"image"`        // "" → operator default
-	User         string       `json:"user"`         // "" for redis
-	Password     string       `json:"password"`
-	Database     string       `json:"database"`     // postgres only, else ""
-	StorageSize  int64        `json:"storageSize"`  // mb
-	StorageClass string       `json:"storageClass"` // optional override; backend leaves "" → deployer defaults
+	ID             int64                   `json:"id"`
+	ProjectID      int64                   `json:"projectId"`
+	Name           string                  `json:"name"`
+	Type           DatabaseType            `json:"type"`
+	Image          string                  `json:"image"` // "" → operator default
+	PostgresConfig *DatabaseConfigPostgres `json:"postgresConfig"`
+	RedisConfig    *DatabaseConfigRedis    `json:"redisConfig"`
+	MongoConfig    *DatabaseConfigMongo    `json:"mongoConfig"`
+	StorageSize    int64                   `json:"storageSize"`  // mb
+	StorageClass   string                  `json:"storageClass"` // optional override; backend leaves "" → deployer defaults
+	Resources      DatabaseResources       `json:"resources,omitempty"`
 }
 
 type DeployerCommandDatabaseMetadata struct {
