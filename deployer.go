@@ -184,6 +184,7 @@ type DeployerCommandDeploymentDeploySpec struct {
 	ExtraDiskMountData   map[string]DiskMountData `json:"extraDiskMountData"` // file path => config
 	Sidecars             []*Sidecar               `json:"sidecars"`
 	HealthCheck          DeploymentHealthCheck    `json:"healthCheck"`
+	GoogleAuth           *GoogleAuthConfig        `json:"googleAuth"`
 }
 
 type DeploymentHealthCheck struct {
