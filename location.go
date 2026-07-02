@@ -64,6 +64,7 @@ type LocationFeatures struct {
 	WorkloadIdentity bool      `json:"workloadIdentity,omitempty" yaml:"workloadIdentity"`
 	Disk             *struct{} `json:"disk,omitempty" yaml:"disk"`
 	Database         *struct{} `json:"database,omitempty" yaml:"database"`
+	WebGoogleAuth    *struct{} `json:"web-google-auth,omitempty" yaml:"web-google-auth"`
 }
 
 type LocationGet struct {
