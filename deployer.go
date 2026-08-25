@@ -20,6 +20,8 @@ type GetCommandsResult []*DeployerCommandItem
 type DeployerCommandItem struct {
 	PullSecretCreate                    *DeployerCommandPullSecretCreate                    `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerCommandMetadata                            `json:"pullSecretDelete,omitempty"`
+	SecretUpsert                        *DeployerCommandSecretUpsert                        `json:"secretUpsert,omitempty"`
+	SecretDelete                        *DeployerCommandSecretDelete                        `json:"secretDelete,omitempty"`
 	WorkloadIdentityCreate              *DeployerCommandWorkloadIdentityCreate              `json:"workloadIdentityCreate,omitempty"`
 	WorkloadIdentityDelete              *DeployerCommandMetadata                            `json:"workloadIdentityDelete,omitempty"`
 	DiskCreate                          *DeployerCommandDiskCreate                          `json:"diskCreate,omitempty"`
@@ -107,6 +109,21 @@ type DeployerCommandPullSecretCreate struct {
 	ProjectID int64  `json:"projectId"`
 	Name      string `json:"name"`
 	Value     string `json:"value"`
+}
+
+type DeployerCommandSecretUpsert struct {
+	SecretID  int64  `json:"secretId"`
+	ProjectID int64  `json:"projectId"`
+	Name      string `json:"name"`
+	Revision  int64  `json:"revision"`
+	Value     string `json:"value"`
+}
+
+type DeployerCommandSecretDelete struct {
+	SecretID  int64  `json:"secretId"`
+	ProjectID int64  `json:"projectId"`
+	Name      string `json:"name"`
+	Revision  int64  `json:"revision"`
 }
 
 type DeployerCommandWorkloadIdentityCreate struct {
@@ -231,6 +248,8 @@ type DeployerSetResult []*DeployerSetResultItem
 type DeployerSetResultItem struct {
 	PullSecretCreate                    *DeployerSetResultItemGeneral               `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerSetResultItemGeneral               `json:"pullSecretDelete,omitempty"`
+	SecretUpsert                        *DeployerSetResultItemSecret                `json:"secretUpsert,omitempty"`
+	SecretDelete                        *DeployerSetResultItemSecret                `json:"secretDelete,omitempty"`
 	WorkloadIdentityCreate              *DeployerSetResultItemGeneral               `json:"workloadIdentityCreate,omitempty"`
 	WorkloadIdentityDelete              *DeployerSetResultItemGeneral               `json:"workloadIdentityDelete,omitempty"`
 	DiskCreate                          *DeployerSetResultItemGeneral               `json:"diskCreate,omitempty"`
@@ -250,6 +269,12 @@ type DeployerSetResultItem struct {
 
 type DeployerSetResultItemGeneral struct {
 	ID int64 `json:"id"`
+}
+
+type DeployerSetResultItemSecret struct {
+	SecretID int64 `json:"secretId"`
+	Revision int64 `json:"revision"`
+	Success  bool  `json:"success"`
 }
 
 // DeployerSetResultItemDatabaseCreate carries the kdb-assigned endpoint back to the backend.
