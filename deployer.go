@@ -177,31 +177,37 @@ type DiskMountData struct {
 	SubPath  string `json:"subPath"`
 }
 
+type DeployerCommandDeploymentSecretEnv struct {
+	EnvName  string `json:"envName"`
+	SecretID int64  `json:"secretId"`
+}
+
 type DeployerCommandDeploymentDeploySpec struct {
-	Image                string                   `json:"image"`
-	Env                  map[string]string        `json:"env"`
-	Command              []string                 `json:"command"`
-	Args                 []string                 `json:"args"`
-	WorkloadIdentityName string                   `json:"workloadIdentityName"`
-	MinReplicas          int                      `json:"minReplicas"`
-	MaxReplicas          int                      `json:"maxReplicas"`
-	Port                 int                      `json:"port"`
-	Protocol             DeploymentProtocol       `json:"protocol"`
-	Internal             bool                     `json:"internal"`
-	Schedule             string                   `json:"schedule"`
-	Annotations          map[string]string        `json:"annotations"`
-	CPU                  string                   `json:"cpu"`
-	CPULimit             string                   `json:"cpuLimit"`
-	Memory               string                   `json:"memory"`
-	PullSecretName       string                   `json:"pullSecretName"`
-	DiskName             string                   `json:"diskName"`
-	DiskMountPath        string                   `json:"diskMountPath"`
-	DiskSubPath          string                   `json:"diskSubPath"`
-	MountData            map[string]string        `json:"mountData"`          // file path => data
-	ExtraDiskMountData   map[string]DiskMountData `json:"extraDiskMountData"` // file path => config
-	Sidecars             []*Sidecar               `json:"sidecars"`
-	HealthCheck          DeploymentHealthCheck    `json:"healthCheck"`
-	GoogleAuth           *GoogleAuthConfig        `json:"googleAuth"`
+	Image                string                               `json:"image"`
+	Env                  map[string]string                    `json:"env"`
+	SecretEnvs           []DeployerCommandDeploymentSecretEnv `json:"secretEnvs,omitempty"`
+	Command              []string                             `json:"command"`
+	Args                 []string                             `json:"args"`
+	WorkloadIdentityName string                               `json:"workloadIdentityName"`
+	MinReplicas          int                                  `json:"minReplicas"`
+	MaxReplicas          int                                  `json:"maxReplicas"`
+	Port                 int                                  `json:"port"`
+	Protocol             DeploymentProtocol                   `json:"protocol"`
+	Internal             bool                                 `json:"internal"`
+	Schedule             string                               `json:"schedule"`
+	Annotations          map[string]string                    `json:"annotations"`
+	CPU                  string                               `json:"cpu"`
+	CPULimit             string                               `json:"cpuLimit"`
+	Memory               string                               `json:"memory"`
+	PullSecretName       string                               `json:"pullSecretName"`
+	DiskName             string                               `json:"diskName"`
+	DiskMountPath        string                               `json:"diskMountPath"`
+	DiskSubPath          string                               `json:"diskSubPath"`
+	MountData            map[string]string                    `json:"mountData"`          // file path => data
+	ExtraDiskMountData   map[string]DiskMountData             `json:"extraDiskMountData"` // file path => config
+	Sidecars             []*Sidecar                           `json:"sidecars"`
+	HealthCheck          DeploymentHealthCheck                `json:"healthCheck"`
+	GoogleAuth           *GoogleAuthConfig                    `json:"googleAuth"`
 }
 
 type DeploymentHealthCheck struct {

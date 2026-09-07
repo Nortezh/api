@@ -6,6 +6,44 @@ import (
 	"testing"
 )
 
+func TestDeploymentSecretEnvJSON(t *testing.T) {
+	ref := DeployerCommandDeploymentSecretEnv{EnvName: "TOKEN", SecretID: 42}
+	got, err := json.Marshal(ref)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `{"envName":"TOKEN","secretId":42}`; string(got) != want {
+		t.Fatalf("reference: got %s, want %s", got, want)
+	}
+
+	for _, tt := range []struct {
+		name string
+		spec DeployerCommandDeploymentDeploySpec
+		want bool
+	}{
+		{"omitted", DeployerCommandDeploymentDeploySpec{}, false},
+		{"present", DeployerCommandDeploymentDeploySpec{SecretEnvs: []DeployerCommandDeploymentSecretEnv{ref}}, true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := json.Marshal(tt.spec)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(got, &fields); err != nil {
+				t.Fatal(err)
+			}
+			refs, ok := fields["secretEnvs"]
+			if ok != tt.want {
+				t.Fatalf("secretEnvs presence: got %t, want %t", ok, tt.want)
+			}
+			if ok && string(refs) != `[{"envName":"TOKEN","secretId":42}]` {
+				t.Fatalf("secretEnvs: got %s", refs)
+			}
+		})
+	}
+}
+
 func TestSecretCommandAndResultJSON(t *testing.T) {
 	tests := []struct {
 		name   string
