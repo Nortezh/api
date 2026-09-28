@@ -77,12 +77,21 @@ type DatabaseConfigMongo struct {
 	Password string `json:"password"`
 }
 
+// DatabaseProvider selects the Postgres reconciler. Empty means the legacy kdb path.
+type DatabaseProvider string
+
+const (
+	DatabaseProviderKDB  DatabaseProvider = "kdb"
+	DatabaseProviderCNPG DatabaseProvider = "cnpg"
+)
+
 type DeployerCommandDatabaseCreate struct {
 	ID             int64                   `json:"id"`
 	ProjectID      int64                   `json:"projectId"`
 	Name           string                  `json:"name"`
 	Type           DatabaseType            `json:"type"`
-	Image          string                  `json:"image"` // "" → operator default
+	Provider       DatabaseProvider        `json:"provider,omitempty"` // Postgres only; absent = kdb
+	Image          string                  `json:"image"`              // "" → operator default
 	PostgresConfig *DatabaseConfigPostgres `json:"postgresConfig"`
 	RedisConfig    *DatabaseConfigRedis    `json:"redisConfig"`
 	MongoConfig    *DatabaseConfigMongo    `json:"mongoConfig"`
@@ -92,10 +101,11 @@ type DeployerCommandDatabaseCreate struct {
 }
 
 type DeployerCommandDatabaseMetadata struct {
-	ID        int64        `json:"id"`
-	ProjectID int64        `json:"projectId"`
-	Name      string       `json:"name"`
-	Type      DatabaseType `json:"type"` // needed to pick the kdb kind to delete
+	ID        int64            `json:"id"`
+	ProjectID int64            `json:"projectId"`
+	Name      string           `json:"name"`
+	Type      DatabaseType     `json:"type"`               // needed to pick the kdb kind to delete
+	Provider  DatabaseProvider `json:"provider,omitempty"` // Postgres only; absent = kdb
 }
 
 type DeployerCommandMetadata struct {
@@ -283,12 +293,17 @@ type DeployerSetResultItemSecret struct {
 	Success  bool  `json:"success"`
 }
 
-// DeployerSetResultItemDatabaseCreate carries the kdb-assigned endpoint back to the backend.
+// DeployerSetResultItemDatabaseCreate carries the provider's endpoint back to the backend.
 type DeployerSetResultItemDatabaseCreate struct {
-	ID      int64  `json:"id"`
-	Success bool   `json:"success"`
-	Host    string `json:"host"` // kdb status.host
-	Port    int    `json:"port"` // kdb status.port
+	ID             int64  `json:"id"`
+	Success        bool   `json:"success"`
+	Host           string `json:"host"` // kdb status.host or CNPG read-write host
+	Port           int    `json:"port"` // kdb status.port or CNPG read-write port
+	ResultVersion  int    `json:"resultVersion,omitempty"`
+	QueryReady     bool   `json:"queryReady,omitempty"`
+	TLSReady       bool   `json:"tlsReady,omitempty"`
+	FailureCode    string `json:"failureCode,omitempty"`
+	FailureMessage string `json:"failureMessage,omitempty"`
 }
 
 type DeployerSetResultItemGeneralWithGeneration struct {
