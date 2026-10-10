@@ -61,10 +61,18 @@ func (m *LocationItem) Table() [][]string {
 }
 
 type LocationFeatures struct {
-	WorkloadIdentity bool      `json:"workloadIdentity,omitempty" yaml:"workloadIdentity"`
-	Disk             *struct{} `json:"disk,omitempty" yaml:"disk"`
-	Database         *struct{} `json:"database,omitempty" yaml:"database"`
-	WebGoogleAuth    *struct{} `json:"web-google-auth,omitempty" yaml:"web-google-auth"`
+	WorkloadIdentity bool                    `json:"workloadIdentity,omitempty" yaml:"workloadIdentity"`
+	Disk             *struct{}               `json:"disk,omitempty" yaml:"disk"`
+	Database         *struct{}               `json:"database,omitempty" yaml:"database"`
+	DatabaseCNPG     *DatabaseCNPGCapability `json:"databaseCnpg,omitempty" yaml:"databaseCnpg"`
+	WebGoogleAuth    *struct{}               `json:"web-google-auth,omitempty" yaml:"web-google-auth"`
+}
+
+// DatabaseCNPGCapability reports configuration separately from creation permission.
+// Missing capability and missing createAvailable both mean CNPG creation is unavailable.
+type DatabaseCNPGCapability struct {
+	Configured      bool `json:"configured" yaml:"configured"`
+	CreateAvailable bool `json:"createAvailable" yaml:"createAvailable"`
 }
 
 type LocationGet struct {
