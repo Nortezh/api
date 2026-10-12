@@ -18,6 +18,8 @@ type DeployerIsDomainActive struct {
 type GetCommandsResult []*DeployerCommandItem
 
 type DeployerCommandItem struct {
+	CNPGCreate                          *DeployerCommandCNPGCreate                          `json:"cnpgCreate,omitempty"`
+	CNPGDelete                          *DeployerCommandCNPGIdentity                        `json:"cnpgDelete,omitempty"`
 	PullSecretCreate                    *DeployerCommandPullSecretCreate                    `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerCommandMetadata                            `json:"pullSecretDelete,omitempty"`
 	SecretUpsert                        *DeployerCommandSecretUpsert                        `json:"secretUpsert,omitempty"`
@@ -262,6 +264,8 @@ type DeployerCommandNetworkPolicyProjectIsolationDelete struct {
 type DeployerSetResult []*DeployerSetResultItem
 
 type DeployerSetResultItem struct {
+	CNPGCreate                          *DeployerSetResultCNPGCreate                `json:"cnpgCreate,omitempty"`
+	CNPGDelete                          *DeployerSetResultCNPGDelete                `json:"cnpgDelete,omitempty"`
 	PullSecretCreate                    *DeployerSetResultItemGeneral               `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerSetResultItemGeneral               `json:"pullSecretDelete,omitempty"`
 	SecretUpsert                        *DeployerSetResultItemSecret                `json:"secretUpsert,omitempty"`
