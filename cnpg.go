@@ -2,6 +2,7 @@ package api
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/moonrhythm/validator"
@@ -78,17 +79,56 @@ func (m DeployerSetResultCNPGCreate) Valid() error {
 	return WrapValidate(v)
 }
 
+const (
+	CNPGDeleteVersion   = 2
+	CNPGDeleteResources = "resources"
+	CNPGDeleteFinalize  = "finalize"
+)
+
+// Phase separates resource retirement from endpoint/name release after Secret sync.
+// Old identity-only deletes remain non-executable.
+type DeployerCommandCNPGDelete struct {
+	DeployerCommandCNPGIdentity
+	Phase             string `json:"phase"`
+	SecretID          int64  `json:"secretId"`
+	SecretRevision    int64  `json:"secretRevision"`
+	CreateOperationID string `json:"createOperationId"`
+}
+
+func validCNPGDeleteIdentity(m DeployerCommandCNPGIdentity) error {
+	v := validator.New()
+	v.Must(m.Version == CNPGDeleteVersion, "unsupported CNPG delete version")
+	if err := WrapValidate(v); err != nil {
+		return err
+	}
+	m.Version = 1
+	return m.Valid()
+}
+
+func (m DeployerCommandCNPGDelete) Valid() error {
+	if err := validCNPGDeleteIdentity(m.DeployerCommandCNPGIdentity); err != nil {
+		return err
+	}
+	v := validator.New()
+	v.Must(m.Phase == CNPGDeleteResources || m.Phase == CNPGDeleteFinalize, "CNPG delete phase invalid")
+	v.Must(m.SecretID > 0 && m.SecretRevision > 0, "CNPG delete credential identity invalid")
+	v.Must(len(m.CreateOperationID) == 36 && govalidator.IsUUID(m.CreateOperationID) && m.CreateOperationID != "00000000-0000-0000-0000-000000000000" && !strings.EqualFold(m.CreateOperationID, m.OperationID), "CNPG create identity invalid")
+	return WrapValidate(v)
+}
+
 type DeployerSetResultCNPGDelete struct {
 	DeployerCommandCNPGIdentity
+	Phase          string          `json:"phase"`
 	ResourceAbsent bool            `json:"resourceAbsent"`
 	FailureCode    CNPGFailureCode `json:"failureCode,omitempty"`
 }
 
 func (m DeployerSetResultCNPGDelete) Valid() error {
-	if err := m.DeployerCommandCNPGIdentity.Valid(); err != nil {
+	if err := validCNPGDeleteIdentity(m.DeployerCommandCNPGIdentity); err != nil {
 		return err
 	}
 	v := validator.New()
+	v.Must(m.Phase == CNPGDeleteResources || m.Phase == CNPGDeleteFinalize, "CNPG delete phase invalid")
 	v.Must((m.ResourceAbsent && m.FailureCode == "") || (!m.ResourceAbsent && m.FailureCode == CNPGFailureCleanup), "CNPG deletion evidence invalid")
 	return WrapValidate(v)
 }

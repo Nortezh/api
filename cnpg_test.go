@@ -11,13 +11,19 @@ func cnpgIdentity() DeployerCommandCNPGIdentity {
 	return DeployerCommandCNPGIdentity{Version: 1, ID: 1, ProjectID: 2, OperationID: "a1111111-1111-4111-8111-111111111111"}
 }
 
+func cnpgDelete() *DeployerCommandCNPGDelete {
+	identity := cnpgIdentity()
+	identity.Version = CNPGDeleteVersion
+	return &DeployerCommandCNPGDelete{DeployerCommandCNPGIdentity: identity, Phase: CNPGDeleteResources, SecretID: 3, SecretRevision: 1, CreateOperationID: "b1111111-1111-4111-8111-111111111111"}
+}
+
 func TestCNPGWireRoundTrip(t *testing.T) {
 	identity := cnpgIdentity()
 	for _, value := range []any{
 		&DeployerCommandItem{CNPGCreate: &DeployerCommandCNPGCreate{DeployerCommandCNPGIdentity: identity, Name: "db", Username: "app", StorageSize: 1024, SecretID: 3, SecretRevision: 1}},
-		&DeployerCommandItem{CNPGDelete: &identity},
+		&DeployerCommandItem{CNPGDelete: cnpgDelete()},
 		&DeployerSetResultItem{CNPGCreate: &DeployerSetResultCNPGCreate{DeployerCommandCNPGIdentity: identity, Success: true, Host: "db.example.test", Port: 5432, QueryReady: true, TLSReady: true}},
-		&DeployerSetResultItem{CNPGDelete: &DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: identity, ResourceAbsent: true}},
+		&DeployerSetResultItem{CNPGDelete: &DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: cnpgDelete().DeployerCommandCNPGIdentity, Phase: CNPGDeleteResources, ResourceAbsent: true}},
 	} {
 		data, err := json.Marshal(value)
 		if err != nil {
@@ -102,7 +108,7 @@ func TestCNPGReadinessAndAbsenceValidation(t *testing.T) {
 	}{
 		{true, "", true}, {false, CNPGFailureCleanup, true}, {false, "", false}, {true, CNPGFailureCleanup, false}, {false, "raw error", false},
 	} {
-		m := DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: cnpgIdentity(), ResourceAbsent: tc.absent, FailureCode: tc.code}
+		m := DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: cnpgDelete().DeployerCommandCNPGIdentity, Phase: CNPGDeleteResources, ResourceAbsent: tc.absent, FailureCode: tc.code}
 		if (m.Valid() == nil) != tc.valid {
 			t.Fatalf("unexpected delete validation: %+v", tc)
 		}
@@ -110,7 +116,7 @@ func TestCNPGReadinessAndAbsenceValidation(t *testing.T) {
 }
 
 func TestCNPGEnvelopeExclusivity(t *testing.T) {
-	identity := cnpgIdentity()
+	identity := cnpgDelete().DeployerCommandCNPGIdentity
 	for _, value := range []any{&DeployerCommandItem{}, &DeployerSetResultItem{}} {
 		typ := reflect.TypeOf(value).Elem()
 		for i := 0; i < typ.NumField(); i++ {
@@ -119,9 +125,9 @@ func TestCNPGEnvelopeExclusivity(t *testing.T) {
 			field.Set(reflect.New(field.Type().Elem()))
 			deleteField := m.Elem().FieldByName("CNPGDelete")
 			if typ == reflect.TypeOf(DeployerCommandItem{}) {
-				deleteField.Set(reflect.ValueOf(&identity))
+				deleteField.Set(reflect.ValueOf(cnpgDelete()))
 			} else {
-				deleteField.Set(reflect.ValueOf(&DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: identity, ResourceAbsent: true}))
+				deleteField.Set(reflect.ValueOf(&DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: identity, Phase: CNPGDeleteResources, ResourceAbsent: true}))
 			}
 			want := typ.Field(i).Name == "CNPGDelete"
 			if (m.Interface().(interface{ ValidCNPG() error }).ValidCNPG() == nil) != want {
