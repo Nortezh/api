@@ -143,6 +143,9 @@ func (m *DeployerCommandItem) ValidCNPG() error {
 	if m.CNPGCreate != nil {
 		return m.CNPGCreate.Valid()
 	}
+	if m.CNPGBackup != nil {
+		return m.CNPGBackup.Valid()
+	}
 	return m.CNPGDelete.Valid()
 }
 
@@ -154,6 +157,9 @@ func (m *DeployerSetResultItem) ValidCNPG() error {
 	}
 	if m.CNPGCreate != nil {
 		return m.CNPGCreate.Valid()
+	}
+	if m.CNPGBackup != nil {
+		return m.CNPGBackup.Valid()
 	}
 	return m.CNPGDelete.Valid()
 }
@@ -169,7 +175,7 @@ func soleCNPGMember(m any) bool {
 		}
 		count++
 		name := fields.Type().Field(i).Name
-		cnpg = cnpg || name == "CNPGCreate" || name == "CNPGDelete"
+		cnpg = cnpg || name == "CNPGCreate" || name == "CNPGDelete" || name == "CNPGBackup"
 	}
 	return count == 1 && cnpg
 }
