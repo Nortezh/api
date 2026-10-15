@@ -20,6 +20,7 @@ type GetCommandsResult []*DeployerCommandItem
 type DeployerCommandItem struct {
 	CNPGCreate                          *DeployerCommandCNPGCreate                          `json:"cnpgCreate,omitempty"`
 	CNPGDelete                          *DeployerCommandCNPGDelete                          `json:"cnpgDelete,omitempty"`
+	CNPGRestore                         *DeployerCommandCNPGRestore                         `json:"cnpgRestore,omitempty"`
 	CNPGBackup                          *DeployerCommandCNPGBackup                          `json:"cnpgBackup,omitempty"`
 	PullSecretCreate                    *DeployerCommandPullSecretCreate                    `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerCommandMetadata                            `json:"pullSecretDelete,omitempty"`
@@ -267,6 +268,7 @@ type DeployerSetResult []*DeployerSetResultItem
 type DeployerSetResultItem struct {
 	CNPGCreate                          *DeployerSetResultCNPGCreate                `json:"cnpgCreate,omitempty"`
 	CNPGDelete                          *DeployerSetResultCNPGDelete                `json:"cnpgDelete,omitempty"`
+	CNPGRestore                         *DeployerSetResultCNPGRestore               `json:"cnpgRestore,omitempty"`
 	CNPGBackup                          *DeployerSetResultCNPGBackup                `json:"cnpgBackup,omitempty"`
 	PullSecretCreate                    *DeployerSetResultItemGeneral               `json:"pullSecretCreate,omitempty"`
 	PullSecretDelete                    *DeployerSetResultItemGeneral               `json:"pullSecretDelete,omitempty"`
