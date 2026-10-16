@@ -105,6 +105,10 @@ func TestCNPGBackupResultValidation(t *testing.T) {
 		func(m *DeployerSetResultCNPGBackup) { m.Status, m.FailureCode = CNPGBackupFailed, CNPGFailureBackup },
 		func(m *DeployerSetResultCNPGBackup) { m.Status, m.Material = CNPGBackupFailed, nil },
 		func(m *DeployerSetResultCNPGBackup) {
+			m.Status, m.Material, m.FailureCode = CNPGBackupFailed, nil, CNPGFailureBackup
+			m.SourceClusterUID, m.BackupUID = "", ""
+		},
+		func(m *DeployerSetResultCNPGBackup) {
 			m.Status, m.Material, m.FailureCode = CNPGBackupFailed, nil, CNPGFailureReconcile
 		},
 		func(m *DeployerSetResultCNPGBackup) {

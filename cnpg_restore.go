@@ -28,14 +28,19 @@ func (m DeployerCommandCNPGRestore) Valid() error {
 	return WrapValidate(v)
 }
 
-// Uncertain recovery remains active. This MVP reports only running or verified completed.
+const CNPGFailureRestore CNPGFailureCode = "restore_failed"
+
+// Uncertain recovery remains active; terminal failure requires native recovery Job evidence.
 type DeployerSetResultCNPGRestore struct {
 	DeployerCommandCNPGRestore
-	Status     CNPGBackupStatus `json:"status"`
-	Host       string           `json:"host,omitempty"`
-	Port       int              `json:"port,omitempty"`
-	QueryReady bool             `json:"queryReady"`
-	TLSReady   bool             `json:"tlsReady"`
+	Status           CNPGBackupStatus `json:"status"`
+	Host             string           `json:"host,omitempty"`
+	Port             int              `json:"port,omitempty"`
+	QueryReady       bool             `json:"queryReady"`
+	TLSReady         bool             `json:"tlsReady"`
+	FailureCode      CNPGFailureCode  `json:"failureCode,omitempty"`
+	TargetClusterUID string           `json:"targetClusterUid,omitempty"`
+	RecoveryJobUID   string           `json:"recoveryJobUid,omitempty"`
 }
 
 func (m DeployerSetResultCNPGRestore) Valid() error {
@@ -43,7 +48,13 @@ func (m DeployerSetResultCNPGRestore) Valid() error {
 		return err
 	}
 	v := validator.New()
+	if m.Status != CNPGBackupFailed {
+		v.Must(m.FailureCode == "" && m.TargetClusterUID == "" && m.RecoveryJobUID == "", "unexpected restore failure evidence")
+	}
 	switch m.Status {
+	case CNPGBackupFailed:
+		v.Must(m.Host == "" && m.Port == 0 && !m.QueryReady && !m.TLSReady, "failed restore cannot advertise readiness")
+		v.Must(m.FailureCode == CNPGFailureRestore && cnpgBackupUUID(m.TargetClusterUID) && cnpgBackupUUID(m.RecoveryJobUID), "native restore failure evidence required")
 	case CNPGBackupRunning:
 		v.Must(m.Host == "" && m.Port == 0 && !m.QueryReady && !m.TLSReady, "running restore cannot advertise readiness")
 	case CNPGBackupCompleted:
