@@ -140,6 +140,9 @@ func (m *DeployerCommandItem) ValidCNPG() error {
 	if err := WrapValidate(v); err != nil {
 		return err
 	}
+	if m.CNPGBackupReadiness != nil {
+		return m.CNPGBackupReadiness.Valid()
+	}
 	if m.CNPGCreate != nil {
 		return m.CNPGCreate.Valid()
 	}
@@ -157,6 +160,9 @@ func (m *DeployerSetResultItem) ValidCNPG() error {
 	v.Must(m != nil && soleCNPGMember(m), "CNPG result must be the sole operation")
 	if err := WrapValidate(v); err != nil {
 		return err
+	}
+	if m.CNPGBackupReadiness != nil {
+		return m.CNPGBackupReadiness.Valid()
 	}
 	if m.CNPGCreate != nil {
 		return m.CNPGCreate.Valid()
@@ -181,7 +187,7 @@ func soleCNPGMember(m any) bool {
 		}
 		count++
 		name := fields.Type().Field(i).Name
-		cnpg = cnpg || name == "CNPGCreate" || name == "CNPGDelete" || name == "CNPGBackup" || name == "CNPGRestore"
+		cnpg = cnpg || name == "CNPGCreate" || name == "CNPGDelete" || name == "CNPGBackup" || name == "CNPGRestore" || name == "CNPGBackupReadiness"
 	}
 	return count == 1 && cnpg
 }
