@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -41,6 +42,49 @@ func TestDeploymentSecretEnvJSON(t *testing.T) {
 				t.Fatalf("secretEnvs: got %s", refs)
 			}
 		})
+	}
+}
+
+func TestPostgresProviderWireStaysAdditive(t *testing.T) {
+	legacy := DeployerSetResultItemDatabaseCreate{ID: 1, Success: true, Host: "legacy.example.test", Port: 5432}
+	got, err := json.Marshal(legacy)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `{"id":1,"success":true,"host":"legacy.example.test","port":5432}`; string(got) != want {
+		t.Fatalf("legacy result = %s, want %s", got, want)
+	}
+	for _, cmd := range []any{
+		DeployerCommandDatabaseCreate{ID: 1, Type: DatabaseTypePostgres, Provider: DatabaseProviderKDB},
+		DeployerCommandDatabaseMetadata{ID: 1, Type: DatabaseTypePostgres, Provider: DatabaseProviderKDB},
+	} {
+		got, err := json.Marshal(cmd)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var decoded struct {
+			ID   int64        `json:"id"`
+			Type DatabaseType `json:"type"`
+		}
+		if err := json.Unmarshal(got, &decoded); err != nil || decoded.ID != 1 || decoded.Type != DatabaseTypePostgres {
+			t.Fatalf("old command decoder = %+v, err = %v", decoded, err)
+		}
+		if !json.Valid(got) || !strings.Contains(string(got), `"provider":"kdb"`) {
+			t.Fatalf("provider missing from command wire: %s", got)
+		}
+	}
+	var oldResult struct {
+		ID      int64  `json:"id"`
+		Success bool   `json:"success"`
+		Host    string `json:"host"`
+		Port    int    `json:"port"`
+	}
+	v2, err := json.Marshal(DeployerSetResultItemDatabaseCreate{ID: 1, Success: true, Host: "cnpg.example.test", Port: 5432, ResultVersion: 2, QueryReady: true, TLSReady: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(v2, &oldResult); err != nil || !oldResult.Success || oldResult.Host != "cnpg.example.test" {
+		t.Fatalf("old result decoder = %+v, err = %v", oldResult, err)
 	}
 }
 
