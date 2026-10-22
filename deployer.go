@@ -208,6 +208,7 @@ type DeployerCommandDeploymentDeploySpec struct {
 	Sidecars             []*Sidecar                           `json:"sidecars"`
 	HealthCheck          DeploymentHealthCheck                `json:"healthCheck"`
 	GoogleAuth           *GoogleAuthConfig                    `json:"googleAuth"`
+	Logs                 *DeploymentLogs                      `json:"logs"`
 }
 
 type DeploymentHealthCheck struct {
