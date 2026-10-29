@@ -18,6 +18,7 @@ type DeployerIsDomainActive struct {
 type GetCommandsResult []*DeployerCommandItem
 
 type DeployerCommandItem struct {
+	CNPGBackupDelete                    *DeployerCommandCNPGBackupDelete                    `json:"cnpgBackupDelete,omitempty"`
 	CNPGBackupReadiness                 *DeployerCommandCNPGBackupReadiness                 `json:"cnpgBackupReadiness,omitempty"`
 	CNPGCreate                          *DeployerCommandCNPGCreate                          `json:"cnpgCreate,omitempty"`
 	CNPGDelete                          *DeployerCommandCNPGDelete                          `json:"cnpgDelete,omitempty"`
