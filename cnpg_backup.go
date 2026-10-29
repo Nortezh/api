@@ -79,9 +79,10 @@ func (m CNPGBackupMaterial) Valid() error {
 // resources and ambiguous errors retain the active operation; they are not failed.
 type DeployerSetResultCNPGBackup struct {
 	DeployerCommandCNPGBackup
-	Status      CNPGBackupStatus    `json:"status"`
-	Material    *CNPGBackupMaterial `json:"material,omitempty"`
-	FailureCode CNPGFailureCode     `json:"failureCode,omitempty"`
+	Status         CNPGBackupStatus          `json:"status"`
+	Material       *CNPGBackupMaterial       `json:"material,omitempty"`
+	ArchiveBinding *CNPGBackupArchiveBinding `json:"archiveBinding,omitempty"`
+	FailureCode    CNPGFailureCode           `json:"failureCode,omitempty"`
 }
 
 func (m DeployerSetResultCNPGBackup) Valid() error {
@@ -89,6 +90,12 @@ func (m DeployerSetResultCNPGBackup) Valid() error {
 		return err
 	}
 	v := validator.New()
+	if m.ArchiveBinding != nil {
+		v.Must(m.Status == CNPGBackupCompleted, "CNPG archive binding requires completion")
+		if err := m.ArchiveBinding.Valid(m.Material); err != nil {
+			return err
+		}
+	}
 	v.Must(cnpgBackupUUID(m.SourceClusterUID) && cnpgBackupUUID(m.BackupUID), "CNPG backup native identity required")
 	switch m.Status {
 	case CNPGBackupRunning:
