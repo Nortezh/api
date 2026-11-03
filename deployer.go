@@ -269,6 +269,7 @@ type DeployerCommandNetworkPolicyProjectIsolationDelete struct {
 type DeployerSetResult []*DeployerSetResultItem
 
 type DeployerSetResultItem struct {
+	CNPGBackupDelete                    *DeployerSetResultCNPGBackupDelete          `json:"cnpgBackupDelete,omitempty"`
 	CNPGBackupReadiness                 *DeployerSetResultCNPGBackupReadiness       `json:"cnpgBackupReadiness,omitempty"`
 	CNPGCreate                          *DeployerSetResultCNPGCreate                `json:"cnpgCreate,omitempty"`
 	CNPGDelete                          *DeployerSetResultCNPGDelete                `json:"cnpgDelete,omitempty"`

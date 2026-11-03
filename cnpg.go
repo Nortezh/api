@@ -176,6 +176,9 @@ func (m *DeployerSetResultItem) ValidCNPG() error {
 	if m.CNPGRestore != nil {
 		return m.CNPGRestore.Valid()
 	}
+	if m.CNPGBackupDelete != nil {
+		return m.CNPGBackupDelete.Valid()
+	}
 	return m.CNPGDelete.Valid()
 }
 

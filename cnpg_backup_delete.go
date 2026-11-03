@@ -7,14 +7,15 @@ import (
 	"github.com/moonrhythm/validator"
 )
 
-// An accepted selected-delete intent, not permission to run a destructive command.
-// The current Worker only observes this checkpoint; no physical delete result is defined.
+// Without Rotation, this is GET-only. Rotation carries the system intent and
+// acknowledged plan/checkpoint state; syntax alone never authorizes execution.
 type DeployerCommandCNPGBackupDelete struct {
 	DeployerCommandCNPGIdentity
 	Backup            DeployerCommandCNPGBackup `json:"backup"`
 	Material          CNPGBackupMaterial        `json:"material"`
 	ArchiveBinding    CNPGBackupArchiveBinding  `json:"archiveBinding"`
 	ConfirmLastBackup bool                      `json:"confirmLastBackup"`
+	Rotation          *CNPGBackupRotation       `json:"rotation,omitempty"`
 }
 
 func (m DeployerCommandCNPGBackupDelete) Valid() error {
@@ -32,5 +33,12 @@ func (m DeployerCommandCNPGBackupDelete) Valid() error {
 	v.Must(!strings.EqualFold(m.OperationID, m.Backup.OperationID) && !strings.EqualFold(m.OperationID, m.Backup.CreateOperationID), "CNPG selected delete operation invalid")
 	v.Must(cnpgBackupUUID(m.Backup.SourceClusterUID) && cnpgBackupUUID(m.Backup.BackupUID), "CNPG selected delete checkpoint required")
 	v.Must(m.Material.ServerName == fmt.Sprintf("cnpg-%d-%d", m.ID, m.ProjectID), "CNPG selected delete archive server invalid")
-	return WrapValidate(v)
+	v.Must(m.Rotation == nil || !m.ConfirmLastBackup, "CNPG rotation cannot confirm last backup")
+	if err := WrapValidate(v); err != nil {
+		return err
+	}
+	if m.Rotation != nil {
+		return m.Rotation.valid(m)
+	}
+	return nil
 }
