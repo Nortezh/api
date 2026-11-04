@@ -43,15 +43,16 @@ const (
 // The worker must verify the exact stock Backup/catalog/WAL and location profile;
 // a syntactically valid receipt alone proves none of those facts.
 type CNPGBackupMaterial struct {
-	BarmanBackupID  string `json:"barmanBackupId"`
-	MajorVersion    int    `json:"majorVersion"`
-	Image           string `json:"image"`
-	StorageClass    string `json:"storageClass"`
-	ObjectStoreName string `json:"objectStoreName"`
-	ObjectStoreUID  string `json:"objectStoreUid"`
-	ServerName      string `json:"serverName"`
-	EndWAL          string `json:"endWal"`
-	EndLSN          string `json:"endLsn"`
+	BarmanBackupID  string             `json:"barmanBackupId"`
+	MajorVersion    int                `json:"majorVersion"`
+	Image           string             `json:"image"`
+	StorageClass    string             `json:"storageClass"`
+	ObjectStoreName string             `json:"objectStoreName"`
+	ObjectStoreUID  string             `json:"objectStoreUid"`
+	ServerName      string             `json:"serverName"`
+	EndWAL          string             `json:"endWal"`
+	EndLSN          string             `json:"endLsn"`
+	Archive         *CNPGBackupArchive `json:"archive,omitempty"`
 }
 
 var (
@@ -62,6 +63,11 @@ var (
 )
 
 func (m CNPGBackupMaterial) Valid() error {
+	if m.Archive != nil {
+		if err := m.Archive.Valid(); err != nil {
+			return err
+		}
+	}
 	_, backupTimeErr := time.Parse("20060102T150405", m.BarmanBackupID)
 	v := validator.New()
 	v.Must(len(m.BarmanBackupID) == 15 && backupTimeErr == nil, "CNPG Barman backup identity invalid")
