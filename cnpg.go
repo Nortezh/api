@@ -80,19 +80,20 @@ func (m DeployerSetResultCNPGCreate) Valid() error {
 }
 
 const (
-	CNPGDeleteVersion   = 2
+	CNPGDeleteVersion   = 3
 	CNPGDeleteResources = "resources"
 	CNPGDeleteFinalize  = "finalize"
 )
 
-// Phase separates resource retirement from endpoint/name release after Secret sync.
-// Old identity-only deletes remain non-executable.
+// Phase separates archive/resource retirement from release after Secret sync.
+// Older archive-unaware commands/results remain non-executable.
 type DeployerCommandCNPGDelete struct {
 	DeployerCommandCNPGIdentity
-	Phase             string `json:"phase"`
-	SecretID          int64  `json:"secretId"`
-	SecretRevision    int64  `json:"secretRevision"`
-	CreateOperationID string `json:"createOperationId"`
+	Phase             string             `json:"phase"`
+	SecretID          int64              `json:"secretId"`
+	SecretRevision    int64              `json:"secretRevision"`
+	CreateOperationID string             `json:"createOperationId"`
+	Receipt           *CNPGDeleteReceipt `json:"receipt,omitempty"`
 }
 
 func validCNPGDeleteIdentity(m DeployerCommandCNPGIdentity) error {
@@ -112,24 +113,72 @@ func (m DeployerCommandCNPGDelete) Valid() error {
 	v := validator.New()
 	v.Must(m.Phase == CNPGDeleteResources || m.Phase == CNPGDeleteFinalize, "CNPG delete phase invalid")
 	v.Must(m.SecretID > 0 && m.SecretRevision > 0, "CNPG delete credential identity invalid")
-	v.Must(len(m.CreateOperationID) == 36 && govalidator.IsUUID(m.CreateOperationID) && m.CreateOperationID != "00000000-0000-0000-0000-000000000000" && !strings.EqualFold(m.CreateOperationID, m.OperationID), "CNPG create identity invalid")
+	v.Must(cnpgBackupUUID(m.CreateOperationID) && !strings.EqualFold(m.CreateOperationID, m.OperationID), "CNPG create identity invalid")
+	if m.Phase == CNPGDeleteResources {
+		v.Must(m.Receipt == nil, "resource cleanup cannot adopt a final receipt")
+	} else {
+		v.Must(m.Receipt != nil && m.Receipt.Valid() == nil, "finalize requires the accepted archive receipt")
+	}
+	return WrapValidate(v)
+}
+
+const (
+	CNPGDeleteScope    = "scope"
+	CNPGDeleteWriters  = "writers"
+	CNPGDeleteArchives = "archives"
+)
+
+// Receipt attests the supported native lifecycle, not provider fencing or physical GC.
+// Raw logs, object keys and credentials stay out of the wire checkpoint.
+type CNPGDeleteReceipt struct {
+	InventoryUID       string `json:"inventoryUid"`
+	ClusterUID         string `json:"clusterUid"`
+	ArchiveBindingHash string `json:"archiveBindingHash"`
+	WriterStopped      bool   `json:"writerStopped"`
+	ArchiveAbsent      bool   `json:"archiveAbsent"`
+}
+
+func (m CNPGDeleteReceipt) Valid() error {
+	v := validator.New()
+	v.Must(cnpgBackupUUID(m.InventoryUID) && cnpgBackupUUID(m.ClusterUID) && !strings.EqualFold(m.InventoryUID, m.ClusterUID), "CNPG retirement identity invalid")
+	v.Must(len(m.ArchiveBindingHash) == 64 && cnpgReadinessConfigurationHash.MatchString(m.ArchiveBindingHash), "CNPG archive binding hash invalid")
+	v.Must(m.WriterStopped && m.ArchiveAbsent, "CNPG committed archive cleanup not confirmed")
 	return WrapValidate(v)
 }
 
 type DeployerSetResultCNPGDelete struct {
 	DeployerCommandCNPGIdentity
-	Phase          string          `json:"phase"`
-	ResourceAbsent bool            `json:"resourceAbsent"`
-	FailureCode    CNPGFailureCode `json:"failureCode,omitempty"`
+	Phase             string             `json:"phase"`
+	ResourceAbsent    bool               `json:"resourceAbsent"`
+	CreateOperationID string             `json:"createOperationId"`
+	SecretID          int64              `json:"secretId"`
+	SecretRevision    int64              `json:"secretRevision"`
+	Receipt           *CNPGDeleteReceipt `json:"receipt,omitempty"`
+	FailureCode       CNPGFailureCode    `json:"failureCode,omitempty"`
+	FailureStage      string             `json:"failureStage,omitempty"`
 }
 
 func (m DeployerSetResultCNPGDelete) Valid() error {
-	if err := validCNPGDeleteIdentity(m.DeployerCommandCNPGIdentity); err != nil {
+	c := DeployerCommandCNPGDelete{DeployerCommandCNPGIdentity: m.DeployerCommandCNPGIdentity, Phase: m.Phase,
+		CreateOperationID: m.CreateOperationID, SecretID: m.SecretID, SecretRevision: m.SecretRevision}
+	if m.Phase == CNPGDeleteFinalize {
+		c.Receipt = m.Receipt
+	}
+	if err := c.Valid(); err != nil {
 		return err
 	}
 	v := validator.New()
-	v.Must(m.Phase == CNPGDeleteResources || m.Phase == CNPGDeleteFinalize, "CNPG delete phase invalid")
-	v.Must((m.ResourceAbsent && m.FailureCode == "") || (!m.ResourceAbsent && m.FailureCode == CNPGFailureCleanup), "CNPG deletion evidence invalid")
+	if m.ResourceAbsent {
+		v.Must(m.Receipt != nil && m.Receipt.Valid() == nil && m.FailureCode == "" && m.FailureStage == "", "CNPG archive/resource cleanup not confirmed")
+	} else {
+		v.Must(m.FailureCode == CNPGFailureCleanup, "CNPG cleanup failure code invalid")
+		if m.Phase == CNPGDeleteResources {
+			v.Must(m.Receipt == nil, "failed resources cannot certify archive cleanup")
+			v.Must(m.FailureStage == CNPGDeleteScope || m.FailureStage == CNPGDeleteWriters || m.FailureStage == CNPGDeleteArchives || m.FailureStage == CNPGDeleteResources, "CNPG cleanup stage invalid")
+		} else {
+			v.Must(m.FailureStage == CNPGDeleteFinalize, "CNPG finalize failure stage invalid")
+		}
+	}
 	return WrapValidate(v)
 }
 

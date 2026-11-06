@@ -10,6 +10,9 @@ func TestCNPGDeletePhaseBoundary(t *testing.T) {
 	for _, phase := range []string{CNPGDeleteResources, CNPGDeleteFinalize} {
 		c := *cnpgDelete()
 		c.Phase = phase
+		if phase == CNPGDeleteFinalize {
+			c.Receipt = cnpgDeleteReceipt()
+		}
 		if c.Valid() != nil {
 			t.Fatal("valid delete rejected")
 		}
@@ -34,9 +37,69 @@ func TestCNPGDeletePhaseBoundary(t *testing.T) {
 		t.Fatal("published identity-only delete became executable")
 	}
 	for _, phase := range []string{"", "force"} {
-		r := DeployerSetResultCNPGDelete{DeployerCommandCNPGIdentity: cnpgIdentity(), Phase: phase, ResourceAbsent: true}
+		r := *cnpgDeleteResult()
+		r.Phase = phase
 		if r.Valid() == nil {
 			t.Fatal("phase-less result accepted")
+		}
+	}
+}
+
+func TestCNPGArchiveDeleteReceiptBoundary(t *testing.T) {
+	for name, change := range map[string]func(*DeployerSetResultCNPGDelete){
+		"legacy":          func(r *DeployerSetResultCNPGDelete) { r.Version = 2 },
+		"missing create":  func(r *DeployerSetResultCNPGDelete) { r.CreateOperationID = "" },
+		"wrong secret":    func(r *DeployerSetResultCNPGDelete) { r.SecretID = 0 },
+		"wrong revision":  func(r *DeployerSetResultCNPGDelete) { r.SecretRevision = 0 },
+		"resource only":   func(r *DeployerSetResultCNPGDelete) { r.Receipt = nil },
+		"inventory":       func(r *DeployerSetResultCNPGDelete) { r.Receipt.InventoryUID = "" },
+		"cluster":         func(r *DeployerSetResultCNPGDelete) { r.Receipt.ClusterUID = "00000000-0000-0000-0000-000000000000" },
+		"same UID":        func(r *DeployerSetResultCNPGDelete) { r.Receipt.InventoryUID = r.Receipt.ClusterUID },
+		"scope hash":      func(r *DeployerSetResultCNPGDelete) { r.Receipt.ArchiveBindingHash = strings.Repeat("A", 64) },
+		"writer unknown":  func(r *DeployerSetResultCNPGDelete) { r.Receipt.WriterStopped = false },
+		"archive unknown": func(r *DeployerSetResultCNPGDelete) { r.Receipt.ArchiveAbsent = false },
+		"success stage":   func(r *DeployerSetResultCNPGDelete) { r.FailureStage = CNPGDeleteArchives },
+		"success error":   func(r *DeployerSetResultCNPGDelete) { r.FailureCode = CNPGFailureCleanup },
+	} {
+		t.Run(name, func(t *testing.T) {
+			r := cnpgDeleteResult()
+			change(r)
+			if r.Valid() == nil {
+				t.Fatal("unsafe archive result accepted")
+			}
+		})
+	}
+	for _, phase := range []string{CNPGDeleteResources, CNPGDeleteFinalize} {
+		for _, stage := range []string{CNPGDeleteScope, CNPGDeleteWriters, CNPGDeleteArchives, CNPGDeleteResources, CNPGDeleteFinalize, "", "raw provider error"} {
+			r := cnpgDeleteResult()
+			r.Phase, r.ResourceAbsent, r.FailureCode, r.FailureStage = phase, false, CNPGFailureCleanup, stage
+			if phase == CNPGDeleteResources {
+				r.Receipt = nil
+			}
+			want := phase == CNPGDeleteResources && (stage == CNPGDeleteScope || stage == CNPGDeleteWriters || stage == CNPGDeleteArchives || stage == CNPGDeleteResources) || phase == CNPGDeleteFinalize && stage == CNPGDeleteFinalize
+			if (r.Valid() == nil) != want {
+				t.Fatalf("unexpected failure boundary: phase=%s stage=%s", phase, stage)
+			}
+		}
+	}
+	c := cnpgDelete()
+	c.Receipt = cnpgDeleteReceipt()
+	if c.Valid() == nil {
+		t.Fatal("resources command adopted a completed receipt")
+	}
+	c.Phase = CNPGDeleteFinalize
+	if c.Valid() != nil {
+		t.Fatal("finalize receipt rejected")
+	}
+	c.Receipt = nil
+	if c.Valid() == nil {
+		t.Fatal("finalize without accepted receipt")
+	}
+	for _, version := range []int{1, 2} {
+		c := cnpgDelete()
+		c.Version = version
+		if c.Valid() == nil {
+			t.Fatal("archive-unaware command became executable")
 		}
 	}
 }
