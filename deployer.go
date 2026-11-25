@@ -225,6 +225,7 @@ type DeployerCommandDeploymentDeploySpec struct {
 	HealthCheck          DeploymentHealthCheck                `json:"healthCheck"`
 	GoogleAuth           *GoogleAuthConfig                    `json:"googleAuth"`
 	Logs                 *DeploymentLogs                      `json:"logs"`
+	Traces               *DeploymentTraces                    `json:"traces"`
 }
 
 type DeploymentHealthCheck struct {

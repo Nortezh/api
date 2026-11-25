@@ -67,6 +67,7 @@ type LocationFeatures struct {
 	DatabaseCNPG     *DatabaseCNPGCapability `json:"databaseCnpg,omitempty" yaml:"databaseCnpg"`
 	WebGoogleAuth    *struct{}               `json:"web-google-auth,omitempty" yaml:"web-google-auth"`
 	LogsV2           *struct{}               `json:"logs-v2,omitempty" yaml:"logs-v2"`
+	Traces           *struct{}               `json:"traces,omitempty" yaml:"traces"`
 }
 
 // DatabaseCNPGCapability reports configuration separately from creation permission.
